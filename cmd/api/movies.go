@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/agpelkey/greenlight/internal/data"
+	"github.com/agpelkey/greenlight/internal/validator"
 )
 
 func (app *application) handleCreateMovie(w http.ResponseWriter, r *http.Request) {
@@ -13,7 +14,7 @@ func (app *application) handleCreateMovie(w http.ResponseWriter, r *http.Request
     var input struct {
         Title string `json:"title"`
         Year int32 `json:"year"`
-        Runtime int32 `json:"runtime"`
+        Runtime data.Runtime`json:"runtime"`
         Genres []string `json:"genres"`
     }
 
@@ -23,6 +24,23 @@ func (app *application) handleCreateMovie(w http.ResponseWriter, r *http.Request
     err := app.readJSON(w, r, &input)
     if err != nil {
         app.badRequestResponse(w, r, err)
+        return
+    }
+
+    // copy the values from the input struct to a new movie struct
+    movie := &data.Movie{
+        Title: input.Title,
+        Year: input.Year,
+        Runtime: input.Runtime,
+        Genres: input.Genres,
+    }
+
+    v := validator.New()
+
+    // call the ValidateMovie() function and return a response containing the errors
+    // if any checks fail
+    if data.ValidateMovie(v, movie); !v.Valid() {
+        app.failedValidationResponse(w, r, v.Errors)
         return
     }
 
