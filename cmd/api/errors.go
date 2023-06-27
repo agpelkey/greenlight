@@ -5,47 +5,52 @@ import (
 	"net/http"
 )
 
+func (app *application) editConflictResponse(w http.ResponseWriter, r *http.Request) {
+	message := "unable to update the record due to an edit conflict, please try again"
+	app.errorResponse(w, r, http.StatusConflict, message)
+}
+
 func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
-    app.errorResponse(w, r, http.StatusUnprocessableEntity, errors)
+	app.errorResponse(w, r, http.StatusUnprocessableEntity, errors)
 }
 
 func (app *application) logError(r *http.Request, err error) {
-    app.logger.Println(err)
+	app.logger.Println(err)
 }
 
 func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
-    app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 }
 
 func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message interface{}) {
-    
-    env := envelope{"error": message}
 
-    err := app.writeJSON(w, status, env, nil)
-    if err != nil {
-        app.logError(r, err)
-        w.WriteHeader(500)
-    }
+	env := envelope{"error": message}
+
+	err := app.writeJSON(w, status, env, nil)
+	if err != nil {
+		app.logError(r, err)
+		w.WriteHeader(500)
+	}
 }
 
 // used when the application encounters an error at run time. This method will log the detailed error message
-// then uses the errorResponse() helper to send a 500 Internal Server Error status code and JSON response 
-// (containing a generic error message) to the client. 
+// then uses the errorResponse() helper to send a 500 Internal Server Error status code and JSON response
+// (containing a generic error message) to the client.
 func (app *application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
-    app.logError(r, err)
+	app.logError(r, err)
 
-    message := "the server encountered a problem and could not process your request"
-    app.errorResponse(w, r, http.StatusInternalServerError, message)
+	message := "the server encountered a problem and could not process your request"
+	app.errorResponse(w, r, http.StatusInternalServerError, message)
 }
 
 // method will be used to send a 404 Not Found status code and JSON response to the client
 func (app *application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
-    message := "the requested resource could not be found"
-    app.errorResponse(w, r, http.StatusNotFound, message)
+	message := "the requested resource could not be found"
+	app.errorResponse(w, r, http.StatusNotFound, message)
 }
 
 // method will be used to send a 405 method not allowed status code and JSON response to the client
 func (app *application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
-    message := fmt.Sprintf("the %s method is not supported for this resource", r.Method)
-    app.errorResponse(w, r, http.StatusMethodNotAllowed, message)
+	message := fmt.Sprintf("the %s method is not supported for this resource", r.Method)
+	app.errorResponse(w, r, http.StatusMethodNotAllowed, message)
 }
