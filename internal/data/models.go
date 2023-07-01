@@ -13,11 +13,11 @@ var (
     ErrEditConflict = errors.New("edit conflict")
 )
 
-
 // Create a models struct which wraps the MovieModel.
 // Add other models to this, like a UserModel and PermissionModel
 type Models struct {
     Movies MovieModel
+    Users UserModel
 }
 
 // for ease of use, we also add a New() method which returns a Models
@@ -25,5 +25,6 @@ type Models struct {
 func NewModels(db *sql.DB) Models {
     return Models{
         Movies: MovieModel{DB: db},
+        Users: UserModel{DB: db},
     }
 }
