@@ -15,6 +15,7 @@ import (
 
 const version = "1.0.0"
 
+// application config
 type config struct {
     port int
     env string
